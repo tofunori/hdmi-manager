@@ -54,17 +54,21 @@ class HDMIManager:
 
         # Sous-menu scaling écran externe
         scale_ext_menu = self.menu.addMenu("Scaling écran externe")
+        self.scale_ext_actions = []
         for scale in ["1", "1.25", "1.5", "1.75", "2"]:
-            action = QAction(f"{int(float(scale)*100)}%")
+            action = QAction(f"{int(float(scale)*100)}%", self.menu)
             action.triggered.connect(lambda checked, s=scale: self.set_scale("HDMI-A-1", s))
             scale_ext_menu.addAction(action)
+            self.scale_ext_actions.append(action)
 
         # Sous-menu scaling laptop
         scale_laptop_menu = self.menu.addMenu("Scaling laptop")
-        for scale in ["1", "1.25", "1.5", "1.75", "2"]:
-            action = QAction(f"{int(float(scale)*100)}%")
+        self.scale_laptop_actions = []
+        for scale in ["1", "1.25", "1.5", "1.75", "2", "2.25"]:
+            action = QAction(f"{int(float(scale)*100)}%", self.menu)
             action.triggered.connect(lambda checked, s=scale: self.set_scale("eDP-1", s))
             scale_laptop_menu.addAction(action)
+            self.scale_laptop_actions.append(action)
 
         self.menu.addSeparator()
 
