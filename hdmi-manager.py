@@ -52,6 +52,22 @@ class HDMIManager:
 
         self.menu.addSeparator()
 
+        # Sous-menu scaling écran externe
+        scale_ext_menu = self.menu.addMenu("Scaling écran externe")
+        for scale in ["1", "1.25", "1.5", "1.75", "2"]:
+            action = QAction(f"{int(float(scale)*100)}%")
+            action.triggered.connect(lambda checked, s=scale: self.set_scale("HDMI-A-1", s))
+            scale_ext_menu.addAction(action)
+
+        # Sous-menu scaling laptop
+        scale_laptop_menu = self.menu.addMenu("Scaling laptop")
+        for scale in ["1", "1.25", "1.5", "1.75", "2"]:
+            action = QAction(f"{int(float(scale)*100)}%")
+            action.triggered.connect(lambda checked, s=scale: self.set_scale("eDP-1", s))
+            scale_laptop_menu.addAction(action)
+
+        self.menu.addSeparator()
+
         # Activer/Désactiver
         self.enable_action = QAction("Activer écran externe")
         self.enable_action.triggered.connect(self.enable_hdmi)
@@ -175,6 +191,18 @@ class HDMIManager:
         self.tray.showMessage(
             "HDMI Manager",
             msg,
+            QSystemTrayIcon.MessageIcon.Information,
+            2000
+        )
+
+    def set_scale(self, output, scale):
+        """Change le scaling d'un écran"""
+        self.run_kscreen([f"output.{output}.scale.{scale}"])
+        percent = int(float(scale) * 100)
+        screen_name = "externe" if output == "HDMI-A-1" else "laptop"
+        self.tray.showMessage(
+            "HDMI Manager",
+            f"Scaling écran {screen_name}: {percent}%",
             QSystemTrayIcon.MessageIcon.Information,
             2000
         )
