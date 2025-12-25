@@ -64,7 +64,7 @@ class HDMIManager:
         # Sous-menu scaling laptop
         scale_laptop_menu = self.menu.addMenu("Scaling laptop")
         self.scale_laptop_actions = []
-        for scale in ["1", "1.25", "1.5", "1.75", "2", "2.25"]:
+        for scale in ["1", "1.25", "1.5", "1.75", "2", "2.15", "2.25"]:
             action = QAction(f"{int(float(scale)*100)}%", self.menu)
             action.triggered.connect(lambda checked, s=scale: self.set_scale("eDP-1", s))
             scale_laptop_menu.addAction(action)
