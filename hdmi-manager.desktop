@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=HDMI Manager
+Comment=Gestionnaire d'écran HDMI externe
+Exec=/home/USER/.local/bin/hdmi-manager.py
+Icon=video-display
+Terminal=false
+Categories=Utility;
+StartupNotify=false
+X-GNOME-Autostart-enabled=true
