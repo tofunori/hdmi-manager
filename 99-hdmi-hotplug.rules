@@ -1,1 +1,5 @@
-ACTION=="change", SUBSYSTEM=="drm", ENV{HOTPLUG}=="1", RUN+="/usr/local/bin/hdmi-hotplug.sh"
+# HDMI Hotplug udev rule
+# Triggers hdmi-4k.sh when HDMI display is connected/disconnected
+# Install to: /etc/udev/rules.d/99-hdmi-hotplug.rules
+
+ACTION=="change", SUBSYSTEM=="drm", KERNEL=="card1", ENV{HOTPLUG}=="1", RUN+="/home/tofunori/.local/bin/hdmi-4k.sh"
