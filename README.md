@@ -86,6 +86,27 @@ Look for `card0-HDMI-A-1` or `card1-HDMI-A-1` - update the paths in both scripts
 - **GPU:** NVIDIA RTX 3060 Mobile + AMD Cezanne (hybrid)
 - **Monitor:** ASUS VG289 (4K)
 
+## Manual Fix (after suspend/resume)
+
+After waking from sleep, the HDMI may stay black. Use the manual fix:
+
+### Option 1: Terminal alias
+```bash
+# Add to ~/.bashrc
+alias hdmi="~/.local/bin/hdmi-resume.sh"
+
+# Then just type:
+hdmi
+```
+
+### Option 2: Desktop launcher
+```bash
+cp hdmi-fix.desktop ~/.local/share/applications/
+cp hdmi-resume.sh hdmi-fix-launcher.sh ~/.local/bin/
+chmod +x ~/.local/bin/hdmi-resume.sh ~/.local/bin/hdmi-fix-launcher.sh
+```
+Then search "HDMI Fix" in your app menu.
+
 ## Logs
 
 ```bash

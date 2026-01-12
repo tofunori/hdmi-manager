@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=HDMI Fix
+Comment=Fix HDMI 4K black screen
+Exec=/home/tofunori/.local/bin/hdmi-fix-launcher.sh
+Icon=video-display
+Terminal=false
+Type=Application
+Categories=Utility;
+Keywords=hdmi;monitor;display;4k;fix;
