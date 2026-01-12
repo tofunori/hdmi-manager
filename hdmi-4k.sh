@@ -6,20 +6,12 @@ set -euo pipefail
 
 output="HDMI-A-1"
 
-LOCKFILE="/tmp/hdmi-4k.lock"
+# Use user runtime dir for lockfile (avoids root ownership issues with udev)
+LOCKFILE="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/hdmi-4k.lock"
 LOGFILE="/tmp/hdmi-4k.log"
-TARGET_USER="tofunori"  # Change this to your username
-TARGET_UID=$(id -u "$TARGET_USER")
 
 log() {
   echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOGFILE"
-}
-
-run_as_user() {
-  runuser -u "$TARGET_USER" -- env \
-    WAYLAND_DISPLAY=wayland-1 \
-    XDG_RUNTIME_DIR="/run/user/$TARGET_UID" \
-    "$@"
 }
 
 # Strict lock - exit if already running
@@ -44,11 +36,11 @@ fi
 
 # 1080p first to wake the display, then 4K
 log "1080p"
-run_as_user cosmic-randr mode "$output" 1920 1080 --refresh 60 >> "$LOGFILE" 2>&1 || true
+cosmic-randr mode "$output" 1920 1080 --refresh 60 >> "$LOGFILE" 2>&1 || true
 
 sleep 1
 
 log "4K"
-run_as_user cosmic-randr mode "$output" 3840 2160 --refresh 60 >> "$LOGFILE" 2>&1 || true
+cosmic-randr mode "$output" 3840 2160 --refresh 60 >> "$LOGFILE" 2>&1 || true
 
 log "Done"

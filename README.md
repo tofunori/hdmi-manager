@@ -10,50 +10,59 @@ On some NVIDIA + Linux setups (especially hybrid GPU laptops), connecting a 4K m
 
 ## How It Works
 
-1. **udev** detects HDMI hotplug event
-2. **Script** runs automatically:
+1. **systemd user service** monitors HDMI status via polling (every 2 seconds)
+2. When HDMI connection is detected, **hdmi-4k.sh** runs:
    - Sets display to 1080p (wakes the monitor)
    - Waits 1 second
    - Sets display to 4K
 3. Display works in 4K
 
+> **Why polling instead of udev?** NVIDIA drivers don't reliably emit udev hotplug events. Polling `/sys/class/drm/card1-HDMI-A-1/status` is more reliable.
+
 ## Installation
 
-1. **Copy the script:**
+1. **Copy the scripts:**
 ```bash
-cp hdmi-4k.sh ~/.local/bin/
-chmod +x ~/.local/bin/hdmi-4k.sh
+cp hdmi-4k.sh hdmi-monitor.sh ~/.local/bin/
+chmod +x ~/.local/bin/hdmi-4k.sh ~/.local/bin/hdmi-monitor.sh
 ```
 
-2. **Edit the script** - change `TARGET_USER` to your username:
+2. **Edit hdmi-4k.sh** - change the `output` variable if needed:
 ```bash
 nano ~/.local/bin/hdmi-4k.sh
 ```
 
-3. **Install udev rule:**
+3. **Edit hdmi-monitor.sh** - update `STATUS_FILE` if your HDMI is on a different card:
 ```bash
-sudo cp 99-hdmi-hotplug.rules /etc/udev/rules.d/
+nano ~/.local/bin/hdmi-monitor.sh
 ```
 
-4. **Edit udev rule** - update the path to match your username:
+4. **Install and enable the systemd service:**
 ```bash
-sudo nano /etc/udev/rules.d/99-hdmi-hotplug.rules
+mkdir -p ~/.config/systemd/user
+cp hdmi-monitor.service ~/.config/systemd/user/
+systemctl --user daemon-reload
+systemctl --user enable --now hdmi-monitor.service
 ```
 
-5. **Reload udev:**
+5. **Verify it's running:**
 ```bash
-sudo udevadm control --reload-rules
-sudo udevadm trigger
+systemctl --user status hdmi-monitor.service
 ```
 
 ## Configuration
 
-Edit `hdmi-4k.sh` to customize:
+### hdmi-4k.sh
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `output` | `HDMI-A-1` | Display output name |
-| `TARGET_USER` | `tofunori` | Your Linux username |
+
+### hdmi-monitor.sh
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `STATUS_FILE` | `/sys/class/drm/card1-HDMI-A-1/status` | Path to HDMI status file |
 
 ### Finding your display name
 
@@ -69,41 +78,31 @@ xrandr --query
 ls /sys/class/drm/
 ```
 
-Look for `card0-HDMI-A-1` or `card1-HDMI-A-1` - use the corresponding card number in the udev rule.
+Look for `card0-HDMI-A-1` or `card1-HDMI-A-1` - update the paths in both scripts accordingly.
 
 ## Tested On
 
-- **OS:** Pop!_OS with COSMIC desktop (Wayland)
+- **OS:** Pop!_OS 24.04 with COSMIC desktop (Wayland)
 - **GPU:** NVIDIA RTX 3060 Mobile + AMD Cezanne (hybrid)
 - **Monitor:** ASUS VG289 (4K)
 
 ## Logs
 
-View logs at `/tmp/hdmi-4k.log`:
 ```bash
+# Monitor service log
+cat /tmp/hdmi-monitor.log
+
+# Script execution log
 cat /tmp/hdmi-4k.log
 ```
 
-## Troubleshooting
-
-### Script doesn't trigger on HDMI plug/unplug
-
-The original udev rule used `ENV{HOTPLUG}=="1"` condition, but NVIDIA drivers don't always emit this variable. The rule has been simplified to trigger on any DRM change event.
-
-If you have an older version installed, update your udev rule:
+## Uninstall
 
 ```bash
-# Remove ENV{HOTPLUG}=="1" from the rule
-sudo nano /etc/udev/rules.d/99-hdmi-hotplug.rules
-
-# Should look like:
-# ACTION=="change", SUBSYSTEM=="drm", KERNEL=="card1", RUN+="/home/YOUR_USER/.local/bin/hdmi-4k.sh"
-
-# Reload rules
-sudo udevadm control --reload-rules
+systemctl --user disable --now hdmi-monitor.service
+rm ~/.config/systemd/user/hdmi-monitor.service
+rm ~/.local/bin/hdmi-4k.sh ~/.local/bin/hdmi-monitor.sh
 ```
-
-The script itself already checks if HDMI is connected, so the extra condition in udev is unnecessary.
 
 ## License
 

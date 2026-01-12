@@ -1,0 +1,12 @@
+[Unit]
+Description=Monitor HDMI hotplug for 4K fix
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/hdmi-monitor.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target
