@@ -84,6 +84,27 @@ View logs at `/tmp/hdmi-4k.log`:
 cat /tmp/hdmi-4k.log
 ```
 
+## Troubleshooting
+
+### Script doesn't trigger on HDMI plug/unplug
+
+The original udev rule used `ENV{HOTPLUG}=="1"` condition, but NVIDIA drivers don't always emit this variable. The rule has been simplified to trigger on any DRM change event.
+
+If you have an older version installed, update your udev rule:
+
+```bash
+# Remove ENV{HOTPLUG}=="1" from the rule
+sudo nano /etc/udev/rules.d/99-hdmi-hotplug.rules
+
+# Should look like:
+# ACTION=="change", SUBSYSTEM=="drm", KERNEL=="card1", RUN+="/home/YOUR_USER/.local/bin/hdmi-4k.sh"
+
+# Reload rules
+sudo udevadm control --reload-rules
+```
+
+The script itself already checks if HDMI is connected, so the extra condition in udev is unnecessary.
+
 ## License
 
 MIT
